@@ -1,88 +1,270 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
+
 <head>
-  <meta charset='utf-8'>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-15">
+<title>Canvas Page</title>
+    <!-- Copyright Florian Sauerland 2011. -->
+    <style type="text/css">
+    body{
+        background: black;
+        }
+    canvas{
+        border: 1px solid white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin: -320px -416px;
+        }
+    </style>
+    <script type="application/javascript">
+// Use W/S and P/L to play!
 
-  <title>mpcg9/Canvas-Pong @ GitHub</title>
 
-  <style type="text/css">
-    body {
-      margin-top: 1.0em;
-      background-color: #4fd6a2;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #000000;
+//Events
+document.onkeydown = btnDown;
+document.onkeyup = btnUp;
+
+//Key checker
+function btnDown(evt){
+if (!evt) evt = window.event;
+var key = evt.keyCode;
+switch(key){
+case 87:
+leftUp = true;
+break;
+case 83:
+leftDown = true;
+break;
+case 80:
+rightUp = true;
+break;
+case 76:
+rightDown = true;
+break;
+default: break;
+}
+}
+
+function btnUp(evt){
+if (!evt) evt = window.event;
+var key = evt.keyCode;
+switch(key){
+case 87:
+leftUp = false;
+break;
+case 83:
+leftDown = false;
+break;
+case 80:
+rightUp = false;
+break;
+case 76:
+rightDown = false;
+break;
+default: break;
+}
+}
+//End of key checker
+
+//Function libary
+function Circle(x,y,r,color,fill){
+ctx.save();
+ctx.beginPath();
+        ctx.arc(x,y,r,0,360,false);
+ctx.closePath();
+if(fill){
+ctx.fillStyle = color;
+ctx.fill();
+}
+else{
+ctx.strokeStyle = color;
+ctx.stroke();
+}
+ctx.restore();
+}
+
+//pos: Array(x,y) Directions: 0° = Top, then clockwise
+function movement(pos,direction,speed){
+direction = direction/360;
+direction = Math.PI*2*direction;
+pos[0] = pos[0] + Math.sin(direction)*speed;
+pos[1] = pos[1] - Math.cos(direction)*speed;
+return pos;
+}
+
+//Collision checker
+function chkColQ(ob1pos,ob1x,ob1y,ob2pos,ob2x,ob2y){
+var collision = (ob1pos[0] + ob1x < ob2pos[0] || ob1pos[1] + ob1y < ob2pos[1] || ob1pos[0] > (ob2pos[0] + ob2x) || ob1pos[1] > (ob2pos[1] + ob2y)) ? false : true;
+return collision;
+}
+
+//Collision function
+function symCol(direction,angle){
+direction = direction - angle;
+while(direction < 0) direction = direction + 360;
+direction = 360 - direction + angle;
+while(direction >= 360) direction = direction - 360;
+return direction;
+}
+
+function radCol(objPos,objDir,colPos,colHgt,spread){
+if(objPos < colPos || objPos > (colPos + colHgt)) spread = spread;
+else{
+var collsn = colPos - objPos;
+collsn = colPos/colHgt;
+var colAgl = (180 - (spread/2)) + collsn * spread;
+objDir = symCol(objDir, colAgl);
+}
+return objDir;
+}
+
+//End of function libary
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Game engine
+    function init(){
+
+//initialising canvas
+        canvas = document.getElementById('canv');
+        ctx = canvas.getContext('2d');
+
+fps = 30;
+gameIsOver = false;
+
+score = 0;
+
+//initialising movement/position variables
+rightBarPosition = new Array(736,240);
+leftBarPosition = new Array(64,240);
+BarHeight = 160;
+Bspeed = 10;
+
+BarVrsty = 80;
+
+BallPosition = new Array(416, 320);
+BallRadius = 16;
+BallMovementDirection = 45;
+BallSpeed = 12;
+BallQuadCorner = new Array(0, 0);
+BallQuadWidth = BallRadius * 2;
+
+leftUp = false;
+leftDown = false;
+rightUp = false;
+rightDown = false;
+
+ColMBar = new Array(0, 0);
+ColMBar2 = new Array(0, 608);
+
+frameLength = 1000/fps;
+
+//start the game!!
+draw();
     }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-    h1 { font-size: 3.8em; color: #b0295d; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #b0295d; }
-    h3 { text-align: center; color: #b0295d; }
-    a { color: #b0295d; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-  </style>
+    
+function draw(){
+
+// DRAW //
+//clear everything
+ctx.clearRect(0,0,832,640);
+
+//background
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0,0,832,640);
+
+//other static elements
+ctx.fillStyle = "#fff";
+        ctx.fillRect(0,0,832,32);
+        ctx.fillRect(0,608,832,32);
+
+//moving elements
+        ctx.fillRect(leftBarPosition[0],leftBarPosition[1],32,BarHeight);
+        ctx.fillRect(rightBarPosition[0],rightBarPosition[1],32,BarHeight);
+
+        Circle(BallPosition[0],BallPosition[1],BallRadius,"#fff",true);
+        
+ctx.fillStyle = "#000";
+ctx.font = "20pt Arial";
+ctx.textBaseline = "bottom";
+ctx.fillText(score, 3, 32);
+//**/ctx.fillText(BallMovementDirection, 300, 32);
+// END OF DRAWING //
+
+DataCalc();
+}
+
+function DataCalc(){
+// CALCULATING NEW POSITIONS //
+//Ball movement
+BallPosition = movement(BallPosition,BallMovementDirection,BallSpeed);
+
+//Bar movement
+if(leftUp && leftBarPosition[1] >= 32) leftBarPosition = movement(leftBarPosition,0,Bspeed);
+if(leftDown && leftBarPosition[1] <= 608 - BarHeight) leftBarPosition = movement(leftBarPosition,180,Bspeed);
+if(rightUp && rightBarPosition[1] >= 32) rightBarPosition = movement(rightBarPosition,0,Bspeed);
+if(rightDown && rightBarPosition[1] <= 608 - BarHeight) rightBarPosition = movement(rightBarPosition,180,Bspeed);
+// END OF POSITION CALCULATING //
+
+
+
+
+// CALCULATING COLLISIONS //
+
+BallQuadCorner[0] = BallPosition[0] - BallRadius;
+BallQuadCorner[1] = BallPosition[1] - BallRadius;
+
+// Collisions with static objetcts
+if(chkColQ(BallQuadCorner, BallQuadWidth, BallQuadWidth, ColMBar, 832, 32) && (BallMovementDirection <= 90 || BallMovementDirection >= 270))
+BallMovementDirection = symCol(BallMovementDirection,90);
+if(chkColQ(BallQuadCorner, BallQuadWidth, BallQuadWidth, ColMBar2, 832, 32) && (BallMovementDirection >= 90 || BallMovementDirection <= 270))
+BallMovementDirection = symCol(BallMovementDirection,90);
+
+//Collisions with bars
+if(chkColQ(BallQuadCorner, BallQuadWidth, BallQuadWidth, leftBarPosition, 32, BarHeight) && (BallMovementDirection >= 180))
+BallMovementDirection = symCol(BallMovementDirection,180);
+
+
+//BallMovementDirection = radCol(BallPosition[1], BallMovementDirection, leftBarPosition[1], BarHeight, BarVrsty);
+
+if(chkColQ(BallQuadCorner, BallQuadWidth, BallQuadWidth, rightBarPosition, 32, BarHeight) && (BallMovementDirection <= 180))
+BallMovementDirection = symCol(BallMovementDirection,180);
+
+//BallMovementDirection = radCol(BallPosition[1], BallMovementDirection, rightBarPosition[1], BarHeight, BarVrsty);
+
+if(BallPosition[0] < 0 - 16 || BallPosition[0] > 848) gameOver();
+
+if(!gameIsOver){
+score++;
+setTimeout('draw()',frameLength);
+}
+}
+
+function gameOver(){
+gameIsOver = true;
+ctx.fillStyle = "#000";
+ctx.fillRect(0, 32, 832, 567);
+ctx.fillStyle = "#fff";
+ctx.font = "60pt Arial";
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
+ctx.fillText("GAME OVER", 416, 320);
+setTimeout('Points()', 2500);
+}
+function Points(){
+ctx.textBaseline = "top";
+ctx.font = "20pt Arial";
+ctx.fillText("You got " + score + " Points!", 416, 390);
+}
+    </script>
 </head>
 
-<body>
-  <a href="https://github.com/mpcg9/Canvas-Pong"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 
-  <div id="container">
-
-    <div class="download">
-      <a href="https://github.com/mpcg9/Canvas-Pong/zipball/master">
-        <img border="0" width="90" src="https://github.com/images/modules/download/zip.png"></a>
-      <a href="https://github.com/mpcg9/Canvas-Pong/tarball/master">
-        <img border="0" width="90" src="https://github.com/images/modules/download/tar.png"></a>
-    </div>
-
-    <h1><a href="https://github.com/mpcg9/Canvas-Pong">Canvas-Pong</a>
-      <span class="small">by <a href="https://github.com/mpcg9">mpcg9</a></span></h1>
-
-    <div class="description">
-      
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-      <h2>Authors</h2>
-      <p>Florian Sauerland (www.florians@googlemail.com)<br/>      </p>
-    
-
-    
-      <h2>Contact</h2>
-      <p> (www.florians@googlemail.com)<br/>      </p>
-    
-
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="https://github.com/mpcg9/Canvas-Pong/zipball/master">zip</a> or
-      <a href="https://github.com/mpcg9/Canvas-Pong/tarball/master">tar formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/mpcg9/Canvas-Pong</pre>
-    </p>
-
-    <div class="footer">
-      get the source code on GitHub : <a href="https://github.com/mpcg9/Canvas-Pong">mpcg9/Canvas-Pong</a>
-    </div>
-
-  </div>
-
+<body onLoad="init();">
+<canvas id="canv" width="832px" height="640px">
+    <h1>Your Browser doesn't support canvas technology!</h1><br />
+    Please upgrade to a more modern browser. Thank you!
+</canvas>
 </body>
 </html>

@@ -50,7 +50,16 @@ function btnUp(evt) {
 }
 // End of key checker
 
-// Function libary
+// Function library
+
+/**
+ * this function prints a circle on the canvas "ctx".
+ * x 		- horizontal position (in px) of the circle's center.
+ * y 		- vertical position (in px) of the circle's center.
+ * r 		- radius of the circle (in px).
+ * color	- color of the circle (in px).
+ * fill		- determines whether the circle shall be filled (boolean).
+ */
 function Circle(x, y, r, color, fill) {
 	ctx.save();
 	ctx.beginPath();
@@ -66,7 +75,14 @@ function Circle(x, y, r, color, fill) {
 	ctx.restore();
 }
 
-// pos: Array(x,y) Directions: 0° = Top, then clockwise
+/**
+ * this function returns the new position of an object which moves at a specific speed in a specific direction.
+ * pos		- initial position of the object. 
+ * 		  Requires an array: pos[0] is the horizontal position, pos[1] is the vertical position (all in px).
+ * direction	- the direction in which the object is supposed to move (in degrees). 
+ * 		  An object moving upwards has a direction of 0, the other directions follow clockwise.
+ * speed	- the distance that the object is supposed to move in one frame (in px per frame).
+ */
 function movement(pos, direction, speed) {
 	direction = direction / 360;
 	direction = Math.PI * 2 * direction;
@@ -75,15 +91,25 @@ function movement(pos, direction, speed) {
 	return pos;
 }
 
-// Collision checker
+/**
+ * this function calculates whether two rectangles do overlap.
+ * ob1pos, ob2pos	- positions of the rectangles' top left corners.
+ * 			  Requires an array: pos[0] is the horizontal position, pos[1] is the vertical position (all in px).
+ * ob1x, ob2x		- width of the rectangles (in px).
+ * ob1y, ob2y		- height of the rectangles (in px).
+ */
 function chkColQ(ob1pos, ob1x, ob1y, ob2pos, ob2x, ob2y) {
-	var collision = (ob1pos[0] + ob1x < ob2pos[0]
-			|| ob1pos[1] + ob1y < ob2pos[1] || ob1pos[0] > (ob2pos[0] + ob2x) || ob1pos[1] > (ob2pos[1] + ob2y)) ? false
-			: true;
+	var collision = (ob1pos[0] + ob1x < ob2pos[0] || ob1pos[1] + ob1y < ob2pos[1] || ob1pos[0] > (ob2pos[0] + ob2x) || ob1pos[1] > (ob2pos[1] + ob2y)) ? false : true;
 	return collision;
 }
 
-// Collision function
+/**
+ * this function calculates the new direction in which an object moves after it is reflected by a surface.
+ * direction	- initial direction in which the object moves (in degrees).
+ * 		  An object moving upwards has a direction of 0, the other directions follow clockwise.
+ * angle	- the angle of the surface by which the object is reflected (in degrees).
+ * 		  (for example, an angle of 90 means that the surface goes horizontal over the canvas, like it is with directions.)
+ */
 function symCol(direction, angle) {
 	direction = direction - angle;
 	while (direction < 0)
@@ -94,19 +120,20 @@ function symCol(direction, angle) {
 	return direction;
 }
 
-function radCol(objPos, objDir, colPos, colHgt, spread) {
+// this function isn't working yet.
+function radCol(objPos, objDir, colPos, colHgt, spreading) {
 	if (objPos < colPos || objPos > (colPos + colHgt))
-		spread = spread;
+		spr = spreading;
 	else {
 		var collsn = colPos - objPos;
 		collsn = colPos / colHgt;
-		var colAgl = (180 - (spread / 2)) + collsn * spread;
+		var colAgl = (180 - (spr / 2)) + collsn * spr;
 		objDir = symCol(objDir, colAgl);
 	}
 	return objDir;
 }
 
-// End of function libary
+// End of function library
 
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

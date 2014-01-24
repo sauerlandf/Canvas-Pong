@@ -23,10 +23,8 @@ function btnDown(evt) {
 		rightDown = true;
 		break;
 	case 13:
-		//Button "enter" starts the game
-		BallSpeed = 12;
-		Bspeed = 10;
-		scorespeed = 1;
+		//Button "enter" starts the game!
+		draw();
 		break;
 	default:
 		break;
@@ -153,20 +151,19 @@ function init(canvas) {
 	gameIsOver = false;
 
 	score = 0;
-	scorespeed = 0;
 
 	// initialising movement/position variables
 	rightBarPosition = new Array(736, 240);
 	leftBarPosition = new Array(64, 240);
 	BarHeight = 160;
-	Bspeed = 0;
+	Bspeed = 10;
 
 	BarVrsty = 80;
 
 	BallPosition = new Array(416, 320);
 	BallRadius = 16;
 	BallMovementDirection = 45;
-	BallSpeed = 0;
+	BallSpeed = 12;
 	BallQuadCorner = new Array(0, 0);
 	BallQuadWidth = BallRadius * 2;
 
@@ -179,9 +176,6 @@ function init(canvas) {
 	ColMBar2 = new Array(0, 608);
 
 	frameLength = 1000 / fps;
-
-	// start the game!!
-	draw();
 }
 
 function draw() {
@@ -265,7 +259,7 @@ function DataCalc() {
 		gameOver();
 
 	if (!gameIsOver) {
-		score = score + scorespeed;
+		score++;
 		setTimeout('draw()', frameLength);
 	}
 }

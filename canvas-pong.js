@@ -22,6 +22,11 @@ function btnDown(evt) {
 	case 76:
 		rightDown = true;
 		break;
+	case 13:
+		//Button "enter" starts the game
+		BallSpeed = 12;
+		Bspeed = 10;
+		break;
 	default:
 		break;
 	}
@@ -152,14 +157,14 @@ function init(canvas) {
 	rightBarPosition = new Array(736, 240);
 	leftBarPosition = new Array(64, 240);
 	BarHeight = 160;
-	Bspeed = 10;
+	Bspeed = 0;
 
 	BarVrsty = 80;
 
 	BallPosition = new Array(416, 320);
 	BallRadius = 16;
 	BallMovementDirection = 45;
-	BallSpeed = 12;
+	BallSpeed = 0;
 	BallQuadCorner = new Array(0, 0);
 	BallQuadWidth = BallRadius * 2;
 

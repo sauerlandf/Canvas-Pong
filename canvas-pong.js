@@ -26,6 +26,7 @@ function btnDown(evt) {
 		//Button "enter" starts the game
 		BallSpeed = 12;
 		Bspeed = 10;
+		scorespeed = 1;
 		break;
 	default:
 		break;
@@ -152,6 +153,7 @@ function init(canvas) {
 	gameIsOver = false;
 
 	score = 0;
+	scorespeed = 0;
 
 	// initialising movement/position variables
 	rightBarPosition = new Array(736, 240);
@@ -263,7 +265,7 @@ function DataCalc() {
 		gameOver();
 
 	if (!gameIsOver) {
-		score++;
+		score += scorespeed;
 		setTimeout('draw()', frameLength);
 	}
 }

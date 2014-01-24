@@ -24,6 +24,7 @@ function btnDown(evt) {
 		break;
 	case 13:
 		//Button "enter" starts the game!
+		gameStarted = true;
 		draw();
 		break;
 	default:
@@ -149,6 +150,7 @@ function init(canvas) {
 
 	fps = 30;
 	gameIsOver = false;
+	gameStarted = false;
 
 	score = 0;
 
@@ -176,6 +178,8 @@ function init(canvas) {
 	ColMBar2 = new Array(0, 608);
 
 	frameLength = 1000 / fps;
+	
+	draw();
 }
 
 function draw() {
@@ -206,7 +210,7 @@ function draw() {
 	// **/ctx.fillText(BallMovementDirection, 300, 32);
 	// END OF DRAWING //
 
-	DataCalc();
+	if(gameStarted) DataCalc();
 }
 
 function DataCalc() {

@@ -265,7 +265,7 @@ function DataCalc() {
 		gameOver();
 
 	if (!gameIsOver) {
-		score += scorespeed;
+		score = score + scorespeed;
 		setTimeout('draw()', frameLength);
 	}
 }
